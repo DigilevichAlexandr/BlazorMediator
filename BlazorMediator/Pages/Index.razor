@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject MediatR.IMediator _mediator 
+@inject MediatR.IMediator _mediator
 
 <h1>Hello, world!</h1>
 
@@ -12,12 +12,28 @@ Welcome to your new app.
     }
 </ul>
 
+<EditForm Model="@personModel" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="first-name" @bind-Value="personModel.FirstName" />
+    <InputText id="last-name" @bind-Value="personModel.LastName" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
 <SurveyPrompt Title="How is Blazor working for you?" />
 @code{
     List<PersonModel> people;
+    private PersonModel personModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         people = await _mediator.Send(new GetPersonListQuery());
+    }
+
+    private async Task HandleSubmit()
+    {
+        var isOk = _mediator.Send(new CreatePersonCommand() { FirstName = personModel.FirstName, LastName = personModel.LastName }).Result;
     }
 }
